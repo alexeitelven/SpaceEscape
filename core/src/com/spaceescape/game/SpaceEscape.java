@@ -15,23 +15,40 @@ public class SpaceEscape extends ApplicationAdapter {
 	private Texture[] nave;
 	private Texture fundo;
 
-	// Variaveis
+
+	//Atributos de Configurações
+	private float larguraDispositivo;
+	private float alturaDispositivo;
 	private Random random;
+    private float variacao = 0;
+    private float posicaoHorizontalNave;
+	private float posicaoVerticalNave;
+
+
+
+
+
+
 
 
 
 	@Override
 	public void create () {
 		inicializaTexturas();
+		inicializaOjetos();
 
 
 	}
 
 	@Override
 	public void render () {
-		batch.begin();
-		//batch.draw(im, 0, 0);
-		batch.end();
+
+		//LIMPAR FRAMES ANTERIORES
+		//Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+
+		desenharTexturas();
+
+
 	}
 
 	@Override
@@ -55,8 +72,29 @@ public class SpaceEscape extends ApplicationAdapter {
 	private void inicializaOjetos(){
 		batch = new SpriteBatch();
 		random = new Random();
-
+		larguraDispositivo = Gdx.graphics.getWidth();
+		alturaDispositivo = Gdx.graphics.getHeight();
+		posicaoHorizontalNave = larguraDispositivo /2;
+		posicaoVerticalNave = alturaDispositivo /2;
 
 
 	}
+
+	private void desenharTexturas() {
+
+		batch.begin();
+
+		batch.draw(fundo, 0, 0, larguraDispositivo, alturaDispositivo);
+
+		batch.draw(nave[(int) variacao], posicaoHorizontalNave, posicaoVerticalNave);
+
+
+		batch.end();
+		variacao += Gdx.graphics.getDeltaTime() * 10;
+		if (variacao > 2) {
+			variacao = 0;
+		}
+	}
+
+
 }
