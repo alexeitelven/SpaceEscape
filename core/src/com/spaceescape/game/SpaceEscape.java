@@ -19,6 +19,8 @@ public class SpaceEscape extends ApplicationAdapter {
 	private float renderX = 100;
 	private float renderY = 100;
 
+	private ArrayList<Asteroide> asteroides = new ArrayList();
+
 
 	//Atributos de Configurações
 	private float larguraDispositivo;
@@ -27,9 +29,7 @@ public class SpaceEscape extends ApplicationAdapter {
 	private float variacao = 0;
 	private float posicaoHorizontalNave;
 	private float posicaoVerticalNave;
-	//private Asteroide asteroide;
 
-	//private ArrayList<Asteroide> asteroides = new ArrayList();
 
 	//Parâmetros
 
@@ -39,6 +39,9 @@ public class SpaceEscape extends ApplicationAdapter {
 	public void create () {
 		inicializaTexturas();
 		inicializaOjetos();
+		adicionaAsteroide();
+		adicionaAsteroide();
+		adicionaAsteroide();
 	}
 
 	@Override
@@ -91,7 +94,6 @@ public class SpaceEscape extends ApplicationAdapter {
 		posicaoHorizontalNave = larguraDispositivo /2;
 		posicaoVerticalNave = alturaDispositivo /2;
 
-		//asteroide = new Asteroide();
 
 	}
 
@@ -108,21 +110,19 @@ public class SpaceEscape extends ApplicationAdapter {
 		batch.begin();
 		batch.draw(fundo, 0, 0, larguraDispositivo, alturaDispositivo);
 		batch.draw(nave[(int) variacao], renderX, renderY, 200, 200);
+
+		for (int i = 0; i < 3; i++) {
+			batch.draw(asteroides.get(i).getAsteroide(),asteroides.get(i).getX(),asteroides.get(i).getY(),asteroides.get(i).getLargura(),asteroides.get(i).getAltura());
+		}
 		batch.end();
+
+
 
 		variacao += Gdx.graphics.getDeltaTime() * 10;
 		if (variacao > 3) {
 			variacao = 0;
 		}
 	}
-
-
-//	public void AdicionaMosca() {
-//		Asteroide m = new Asteroide();
-//		m.start();
-//		asteroides.add(m);
-//
-//	}
 
 
 	@Override
@@ -136,5 +136,14 @@ public class SpaceEscape extends ApplicationAdapter {
 	public void resume() {
 
 	}
+
+	public void adicionaAsteroide() {
+		Asteroide addAsteroide = new Asteroide();
+		addAsteroide.start();
+		asteroides.add(addAsteroide);
+
+	}
+
+
 
 }

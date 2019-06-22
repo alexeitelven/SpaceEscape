@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import java.util.Random;
 
-public class Asteroide extends ApplicationAdapter {
+public class Asteroide extends Thread {
 
     //Parâmetros
     private float larguraDispositivo;
@@ -29,15 +29,13 @@ public class Asteroide extends ApplicationAdapter {
 
 
 
-
-
     public Asteroide(){
-        asteroide = new Texture("nave1.png");
+        asteroide = new Texture("asteroide1.png");
         batch = new SpriteBatch();
         this.x = x;
         this.y = y;
-        this.velx = 1;
-        this.vely = 1;
+        this.velx = 10;
+        this.vely = 10;
         this.largura = asteroide.getWidth();
         this.altura = asteroide.getHeight();
         this.visivel = true;
@@ -45,6 +43,7 @@ public class Asteroide extends ApplicationAdapter {
         this.alturaDispositivo = Gdx.graphics.getHeight();
         this.larguraDispositivo = Gdx.graphics.getWidth();
     }
+
     public void run(){
         long count = 0;
 
@@ -56,6 +55,8 @@ public class Asteroide extends ApplicationAdapter {
             this.mover();
         }
     }
+
+
     public void mover(){
 
         if (x <= 0) {
@@ -70,13 +71,11 @@ public class Asteroide extends ApplicationAdapter {
         }
         if (y <= 26) {
             vely = gerador.nextInt(3);
-            ;
             velx = -gerador.nextInt(3);
             y = 26;
         }
         if (y >= larguraDispositivo) { // largura pois está em landscape
             vely = -gerador.nextInt(3);
-            ;
             velx = gerador.nextInt(3);
             y = 510;
         }
@@ -87,15 +86,7 @@ public class Asteroide extends ApplicationAdapter {
     }
 
 
-
-
-    @Override
-    public void create () {
-
-    }
-
-    @Override
-    public void render () {
+    public void desenhaAsteroide () {
         if(vida<0){
             visivel=false;
         }
@@ -107,10 +98,40 @@ public class Asteroide extends ApplicationAdapter {
 
     }
 
-    @Override
-    public void dispose () {
-
+    public Texture getAsteroide() {
+        return asteroide;
     }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public int getAltura() {
+        return altura;
+    }
+
+    public int getLargura() {
+        return largura;
+    }
+
+
+
+
+
+
+
+    public boolean isVisible() {
+        return visivel;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visivel = visivel;
+    }
+
 
 
 
