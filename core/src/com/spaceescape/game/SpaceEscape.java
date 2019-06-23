@@ -2,9 +2,14 @@ package com.spaceescape.game;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.Rectangle;
 import com.spaceescape.game.Asteroide;
 
 import java.util.ArrayList;
@@ -20,6 +25,13 @@ public class SpaceEscape extends ApplicationAdapter {
 	private float renderY = 100;
 
 	private ArrayList<Asteroide> asteroides = new ArrayList();
+
+	//Formas para Colisão
+	private ShapeRenderer shapeRenderer;
+	private Circle circuloNave,circuloAsteroide;
+	private Rectangle retanguloCanoCima;
+
+
 
 
 	//Atributos de Configurações
@@ -42,6 +54,11 @@ public class SpaceEscape extends ApplicationAdapter {
 		adicionaAsteroide();
 		adicionaAsteroide();
 		adicionaAsteroide();
+		adicionaAsteroide();
+
+
+
+
 	}
 
 	@Override
@@ -51,7 +68,7 @@ public class SpaceEscape extends ApplicationAdapter {
 		//Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		//desenharTexturas();
 		verificaEstadoJogo();
-
+		detectarColisoes();
 	}
 
 	@Override
@@ -63,9 +80,9 @@ public class SpaceEscape extends ApplicationAdapter {
 	private void inicializaTexturas(){
 
 		nave = new Texture[3];
-		nave[0] = new Texture("nave13.png");
-		nave[1] = new Texture("nave14.png");
-		nave[2] = new Texture("nave11.png");
+		nave[0] = new Texture("nave1.png");
+		nave[1] = new Texture("nave2.png");
+		nave[2] = new Texture("nave3.png");
 		fundo = new Texture("fundo.png");
 
 	}
@@ -94,6 +111,11 @@ public class SpaceEscape extends ApplicationAdapter {
 		posicaoHorizontalNave = larguraDispositivo /2;
 		posicaoVerticalNave = alturaDispositivo /2;
 
+		//Formas para Colisões
+		shapeRenderer = new ShapeRenderer();
+		circuloNave = new Circle();
+		circuloAsteroide = new Circle();
+
 
 	}
 
@@ -109,11 +131,14 @@ public class SpaceEscape extends ApplicationAdapter {
 
 		batch.begin();
 		batch.draw(fundo, 0, 0, larguraDispositivo, alturaDispositivo);
-		batch.draw(nave[(int) variacao], renderX, renderY, 200, 200);
+		batch.draw(nave[(int) variacao], renderX, renderY, 150, 150);
 
-		for (int i = 0; i < 3; i++) {
-			batch.draw(asteroides.get(i).getAsteroide(),asteroides.get(i).getX(),asteroides.get(i).getY(),asteroides.get(i).getLargura(),asteroides.get(i).getAltura());
+		for (int i = 0; i < asteroides.size(); i++) {
+			if(asteroides.get(i).isVisible() == true) {
+				batch.draw(asteroides.get(i).getAsteroide(), asteroides.get(i).getX(), asteroides.get(i).getY(), asteroides.get(i).getLargura(), asteroides.get(i).getAltura());
+			}
 		}
+
 		batch.end();
 
 
@@ -123,6 +148,50 @@ public class SpaceEscape extends ApplicationAdapter {
 			variacao = 0;
 		}
 	}
+
+
+	private void detectarColisoes() {
+
+		Circle formaAsteroide;
+		//FORMAS PARA COLISAO
+
+
+		//NAVE
+		circuloNave.set(renderX + 150/2,renderY +150/2,150/2);
+		//ASTEROIDES
+		for (int j = 0; j < asteroides.size(); j++) {
+			Asteroide tempAsteroide = asteroides.get(j);
+			formaAsteroide = tempAsteroide.getFiguraColisao();
+			if (tempAsteroide.isVisible() == true) {
+				boolean colidiuAsteroide1 = Intersector.overlaps(circuloNave, formaAsteroide);
+
+				if (colidiuAsteroide1 == true) {
+					Gdx.app.log("colisao", "COLIDIU ESSA MERDA!");
+					tempAsteroide.setVisible(false);
+					//tempAsteroide.stop();
+				}
+			}
+		}
+
+
+
+
+//        // DESENHANDO AS FORMAS GEOMETRICAS - para entender a colisao
+//        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+//        shapeRenderer.setColor(Color.RED);
+//        shapeRenderer.circle(renderX + 150/2,renderY +150/2,150/2);
+//
+//		for (int i = 0; i < asteroides.size(); i++) {
+//			shapeRenderer.circle(asteroides.get(i).getX() + asteroides.get(i).getLargura()/2,
+//					asteroides.get(i).getY() + asteroides.get(i).getAltura()/2,
+//					asteroides.get(i).getAltura()/2);
+//		}
+//        shapeRenderer.end();
+//
+
+
+	}
+
 
 
 	@Override
