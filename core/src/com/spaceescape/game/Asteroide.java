@@ -1,12 +1,10 @@
 package com.spaceescape.game;
 
 
-import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Circle;
-
 
 import java.util.Random;
 
@@ -30,7 +28,7 @@ public class Asteroide extends Thread {
 
 
     public Asteroide() {
-        asteroide = new Texture("asteroide2.png");
+        asteroide = new Texture("asteroide1.png");
         batch = new SpriteBatch();
         this.x = x;
         this.y = y;
@@ -43,6 +41,27 @@ public class Asteroide extends Thread {
         this.alturaDispositivo = Gdx.graphics.getHeight();
         this.larguraDispositivo = Gdx.graphics.getWidth();
     }
+
+
+    public Asteroide(String nomeAsteroide) {
+        asteroide = new Texture(nomeAsteroide);
+        batch = new SpriteBatch();
+        this.x = x;
+        this.y = y;
+        this.velx = 10;
+        this.vely = 10;
+        this.largura = asteroide.getWidth();
+        this.altura = asteroide.getHeight();
+        this.visivel = true;
+        this.identificador = 1;
+        this.alturaDispositivo = Gdx.graphics.getHeight();
+        this.larguraDispositivo = Gdx.graphics.getWidth();
+    }
+
+
+
+
+
 
     public void run() {
         long count = 0;
