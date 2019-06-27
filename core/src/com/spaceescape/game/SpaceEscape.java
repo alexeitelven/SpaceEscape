@@ -24,7 +24,9 @@ public class SpaceEscape extends ApplicationAdapter {
     private float renderX = 100;
     private float renderY = 100;
 
-    private ArrayList<Asteroide> asteroides = new ArrayList();
+    //private ArrayList<Asteroide> asteroides = new ArrayList();
+	public ArrayList<Asteroide> asteroides;
+
 
     //Formas para Colisão
     private ShapeRenderer shapeRenderer;
@@ -41,10 +43,11 @@ public class SpaceEscape extends ApplicationAdapter {
     private float posicaoVerticalNave;
     private float startTime;
 
-
     //Parâmetros
 
     private int velocidadeNave = 5;
+
+    private Runnable threadGeranaves;
 
 
     @Override
@@ -115,6 +118,16 @@ public class SpaceEscape extends ApplicationAdapter {
         // controle de tempo
         startTime = TimeUtils.millis();
 
+        //Threads
+
+		threadGeranaves = new Runnable() {
+			@Override
+			public void run() {
+
+				adicionaAsteroide1();
+			}
+		};
+
 
     }
 
@@ -137,6 +150,7 @@ public class SpaceEscape extends ApplicationAdapter {
 //				batch.draw(asteroides.get(i).getAsteroide(), asteroides.get(i).getX(), asteroides.get(i).getY(), asteroides.get(i).getLargura(), asteroides.get(i).getAltura());
 //			}
 //		}
+
 
         for (int i = 0; i < asteroides.size(); i++) {
             if (asteroides.get(i).isVisible() == true) {
@@ -220,24 +234,33 @@ public class SpaceEscape extends ApplicationAdapter {
 
     public void geraAsteroides() {
 
-        new Thread() {
-            public void run() {
-                while (true) {
-                    Gdx.app.log("colisao", "Thre	ad!");
-                    try {
-                        Thread.sleep(2000);
-                        //adicionaAsteroide1();
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				// do something important here, asynchronously to the rendering thread
+				 asteroides = new ArrayList();
+				// post a Runnable to the rendering thread that processes the result
+				Gdx.app.postRunnable(new Runnable() {
+					@Override
+					public void run() {
+						//try {
 
 
-                    } catch (InterruptedException e) {
+                                //Thread.sleep(2000);
+                                Gdx.app.log("asteroide", "adicionou Asteroide");
+//                                Asteroide addAsteroide = new Asteroide("asteroide1.png");
+//                                addAsteroide.start();
+//                                asteroides.add(addAsteroide);
+//
 
-                    }
+//						} catch (InterruptedException e) {
+//							e.printStackTrace();
+//						}
+					}
+				});
+			}
+		}).start();
 
-
-                }
-
-            }
-        }.start();
     }
 
 
