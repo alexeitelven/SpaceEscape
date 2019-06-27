@@ -56,6 +56,7 @@ public class SpaceEscape extends ApplicationAdapter {
         inicializaOjetos();
         geraAsteroides();
 
+
     }
 
     @Override
@@ -232,6 +233,7 @@ public class SpaceEscape extends ApplicationAdapter {
     }
 
 
+
     public void geraAsteroides() {
 
 		new Thread(new Runnable() {
@@ -243,19 +245,18 @@ public class SpaceEscape extends ApplicationAdapter {
 				Gdx.app.postRunnable(new Runnable() {
 					@Override
 					public void run() {
-						//try {
+						try {
 
-
-                                //Thread.sleep(2000);
+                                Thread.sleep(2000);
                                 Gdx.app.log("asteroide", "adicionou Asteroide");
-//                                Asteroide addAsteroide = new Asteroide("asteroide1.png");
-//                                addAsteroide.start();
-//                                asteroides.add(addAsteroide);
-//
+                                Asteroide addAsteroide = new Asteroide("asteroide1.png");
+                                addAsteroide.start();
+                                asteroides.add(addAsteroide);
 
-//						} catch (InterruptedException e) {
-//							e.printStackTrace();
-//						}
+
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
 					}
 				});
 			}
