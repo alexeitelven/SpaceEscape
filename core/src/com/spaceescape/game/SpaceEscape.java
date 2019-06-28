@@ -24,8 +24,8 @@ public class SpaceEscape extends ApplicationAdapter {
     private float renderX = 100;
     private float renderY = 100;
 
-    //private ArrayList<Asteroide> asteroides = new ArrayList();
-	public ArrayList<Asteroide> asteroides;
+    private ArrayList<Asteroide> asteroides = new ArrayList();
+    //public ArrayList<Asteroide> asteroides;
 
 
     //Formas para Colisão
@@ -39,22 +39,20 @@ public class SpaceEscape extends ApplicationAdapter {
     private float alturaDispositivo;
     private Random random;
     private float variacao = 0;
+    private float tempoGeraAsteroide = 0;
     private float posicaoHorizontalNave;
     private float posicaoVerticalNave;
-    private float startTime;
+    private long startTime;
 
     //Parâmetros
 
     private int velocidadeNave = 5;
-
-    private Runnable threadGeranaves;
 
 
     @Override
     public void create() {
         inicializaTexturas();
         inicializaOjetos();
-        geraAsteroides();
 
 
     }
@@ -67,6 +65,8 @@ public class SpaceEscape extends ApplicationAdapter {
         //desenharTexturas();
         verificaEstadoJogo();
         detectarColisoes();
+        geraAsteroides();
+
     }
 
     @Override
@@ -117,17 +117,7 @@ public class SpaceEscape extends ApplicationAdapter {
 
 
         // controle de tempo
-        startTime = TimeUtils.millis();
-
-        //Threads
-
-		threadGeranaves = new Runnable() {
-			@Override
-			public void run() {
-
-				adicionaAsteroide1();
-			}
-		};
+        //startTime = TimeUtils.millis();
 
 
     }
@@ -161,9 +151,24 @@ public class SpaceEscape extends ApplicationAdapter {
 
         batch.end();
 
+        tempoGeraAsteroide += Gdx.graphics.getDeltaTime()*40;
+        if (tempoGeraAsteroide * 5 > 99) {
+            tempoGeraAsteroide = 0;
+        }
+
+
         variacao += Gdx.graphics.getDeltaTime() * 10;
         if (variacao > 3) {
             variacao = 0;
+        }
+    }
+
+    private void geraAsteroides() {
+
+        if (tempoGeraAsteroide >= 3 && tempoGeraAsteroide <= 3.5) {
+            adicionaAsteroide1();
+        } else if (tempoGeraAsteroide >= 2 && tempoGeraAsteroide <= 2.5){
+            adicionaAsteroide2();
         }
     }
 
@@ -230,38 +235,6 @@ public class SpaceEscape extends ApplicationAdapter {
         Asteroide addAsteroide = new Asteroide("asteroide2.png");
         addAsteroide.start();
         asteroides.add(addAsteroide);
-    }
-
-
-
-    public void geraAsteroides() {
-
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				// do something important here, asynchronously to the rendering thread
-				 asteroides = new ArrayList();
-				// post a Runnable to the rendering thread that processes the result
-				Gdx.app.postRunnable(new Runnable() {
-					@Override
-					public void run() {
-						try {
-
-                                Thread.sleep(2000);
-                                Gdx.app.log("asteroide", "adicionou Asteroide");
-                                Asteroide addAsteroide = new Asteroide("asteroide1.png");
-                                addAsteroide.start();
-                                asteroides.add(addAsteroide);
-
-
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
-				});
-			}
-		}).start();
-
     }
 
 
