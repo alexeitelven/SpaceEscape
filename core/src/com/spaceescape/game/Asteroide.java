@@ -14,17 +14,24 @@ public class Asteroide extends Thread {
     private float larguraDispositivo;
     private float alturaDispositivo;
 
+
+
+
     //Variaveis
     Random gerador = new Random();
+
     private SpriteBatch batch;
-    private int x = gerador.nextInt(Gdx.graphics.getWidth());
-    private int y = gerador.nextInt(Gdx.graphics.getHeight());
+    private int x ;
+    private int y ;
+    private int xValidado ;
+    private int yValidado ;
+
     private int velx, vely;
     private int identificador;
     private Texture asteroide;
     private boolean visivel;
     private int altura, largura;
-    private int vida = 4000;
+    private int vida = 8000;
 
 
     public Asteroide() {
@@ -40,6 +47,7 @@ public class Asteroide extends Thread {
         this.identificador = 1;
         this.alturaDispositivo = Gdx.graphics.getHeight();
         this.larguraDispositivo = Gdx.graphics.getWidth();
+        validaPosicaoInicial(x,y);
     }
 
 
@@ -59,46 +67,26 @@ public class Asteroide extends Thread {
     }
 
 
-
-
-
-
     public void run() {
-        long count = 0;
+        Boolean ativa = true;
 
-        while (true) {
+        while (ativa == true) {
             try {
                 Thread.sleep(25);
+                this.mover();
             } catch (InterruptedException e) {
             }
-            //vida=vida-1;
-            this.mover();
+           if (vida == 0) {
+               ativa = false;
+           }
+            vida = vida - 10;
+
         }
     }
 
 
     public void mover() {
 
-//        if (x <= 0) {
-//            velx = gerador.nextInt(10);
-//            vely = -gerador.nextInt(10);
-//            x = 5;
-//        }
-//        if (x >= alturaDispositivo) { // altura pois está em landscape
-//            velx = -gerador.nextInt(10);
-//            vely = gerador.nextInt(10);
-//            x = (int)alturaDispositivo;
-//        }
-//        if (y <= 26) {
-//            vely = gerador.nextInt(10);
-//            velx = -gerador.nextInt(10);
-//            y = 26;
-//        }
-//        if (y >= larguraDispositivo) { // largura pois está em landscape
-//            vely = -gerador.nextInt(10);
-//            velx = gerador.nextInt(10);
-//            y = (int)larguraDispositivo;
-//        }
 
         if (x < -500) {
             velx = gerador.nextInt(10);
@@ -126,6 +114,14 @@ public class Asteroide extends Thread {
 
     }
 
+    public int getVida() {
+        return vida;
+    }
+
+    public void setVida(int vida) {
+        this.vida = vida;
+    }
+
     public Circle getFiguraColisao(){
         return new Circle(this.x + this.largura/2,this.y + this.altura/2,this.largura/2);
         //return new Rectangle(this.x,this.y,this.largura,this.altura);
@@ -139,8 +135,16 @@ public class Asteroide extends Thread {
         return x;
     }
 
+    public void setX(int x) {
+        this.x = x;
+    }
+
     public int getY() {
         return y;
+    }
+
+    public void setY(int y) {
+        this.y = y;
     }
 
     public int getAltura() {
@@ -160,6 +164,50 @@ public class Asteroide extends Thread {
         this.visivel = visivel;
     }
 
+    public int geradorX(){
 
+        int auxX = gerador.nextInt(Gdx.graphics.getHeight())- 100;
+        int valorInicial =0;
+        int valorFinal = Gdx.graphics.getWidth();
+
+        if((auxX >= valorInicial && auxX <= valorFinal)){
+            do{
+                auxX = gerador.nextInt(Gdx.graphics.getHeight())- 100;
+            }while(auxX >= valorInicial && auxX <= valorFinal);
+        }
+
+        return auxX;
+    }
+
+    public int geradorY(){
+
+        int auxY = gerador.nextInt(Gdx.graphics.getWidth()) + 200;
+        int valorInicial =0;
+        int valorFinal = Gdx.graphics.getWidth();
+
+        if((auxY >= valorInicial && auxY <= valorFinal)){
+            do{
+                auxY = gerador.nextInt(Gdx.graphics.getWidth()) + 200;
+            }while(auxY >= valorInicial && auxY <= valorFinal);
+        }
+
+        return auxY;
+    }
+
+    public void validaPosicaoInicial (int x,int y){
+
+        int valorInicialX = 0;
+        int valorInicialY = 0;
+        int valorFinalX = Gdx.graphics.getWidth();
+        int valorFinalY = Gdx.graphics.getHeight();
+
+
+        if((x >= valorInicialX && x <= valorFinalX) || (y >= valorFinalY && y <= valorFinalY) ) {
+
+
+        }
+
+
+    }
 
 }

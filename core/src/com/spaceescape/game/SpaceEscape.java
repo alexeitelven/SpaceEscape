@@ -144,6 +144,11 @@ public class SpaceEscape extends ApplicationAdapter {
 
 
         for (int i = 0; i < asteroides.size(); i++) {
+            if(asteroides.get(i).getVida()== 0){
+                asteroides.get(i).setVisible(false);
+                asteroides.get(i).setX(Gdx.graphics.getWidth());
+                asteroides.get(i).setY(Gdx.graphics.getHeight());
+            }
             if (asteroides.get(i).isVisible() == true) {
                 batch.draw(asteroides.get(i).getAsteroide(), asteroides.get(i).getX(), asteroides.get(i).getY(), asteroides.get(i).getLargura(), asteroides.get(i).getAltura());
             }
@@ -152,7 +157,7 @@ public class SpaceEscape extends ApplicationAdapter {
         batch.end();
 
         tempoGeraAsteroide += Gdx.graphics.getDeltaTime()*40;
-        if (tempoGeraAsteroide * 5 > 99) {
+        if (tempoGeraAsteroide * 2 > 99) {
             tempoGeraAsteroide = 0;
         }
 
