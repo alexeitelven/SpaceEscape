@@ -3,6 +3,7 @@ package com.spaceescape.game;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.GL30;
@@ -62,6 +63,12 @@ public class SpaceEscape extends ApplicationAdapter {
     BitmapFont textoPontuacao;
     BitmapFont textoReiniciar;
     BitmapFont textoMelhorPontuacao;
+
+    //Configuração dos Sons
+
+    Sound somColisao;
+    Sound somInicio;
+
 
 
     @Override
@@ -124,6 +131,7 @@ public class SpaceEscape extends ApplicationAdapter {
             if (toqueTela == true) {
                 //Gdx.app.log("Toque","Toque na tela");
                 estadoJogo = 1;
+                somInicio.play();
 
             }
 
@@ -212,6 +220,10 @@ public class SpaceEscape extends ApplicationAdapter {
         preferencias = Gdx.app.getPreferences("SpaceEscape");
         pontuacaoMaxima = preferencias.getInteger("pontuacaoMaxima");
 
+        //Configuração dos sons
+        somColisao = Gdx.audio.newSound(Gdx.files.internal("explosao.wav"));
+        somInicio = Gdx.audio.newSound(Gdx.files.internal("som_inicial.wav"));
+
 
     }
 
@@ -245,12 +257,11 @@ public class SpaceEscape extends ApplicationAdapter {
             textoPontuacao.draw(batch, String.valueOf(pontuacao), 100, alturaDispositivo - 150);
         }
         if (estadoJogo == 2) {
-            textoPontuacao.draw(batch, String.valueOf(pontuacao), larguraDispositivo / 2, alturaDispositivo - 150);
+            textoPontuacao.draw(batch, String.valueOf(pontuacao), larguraDispositivo / 2 -50, alturaDispositivo - 150);
             batch.draw(gameOver, larguraDispositivo / 2 - gameOver.getWidth() / 2, alturaDispositivo / 2 - gameOver.getHeight() / 2);
             textoReiniciar.setColor(Color.GREEN);
-            textoReiniciar.draw(batch, "Toque para reiniciar!", larguraDispositivo / 2 - 200, alturaDispositivo / 2 - gameOver.getHeight() / 2);
-            textoMelhorPontuacao.draw(batch, "Seu record é: " + pontuacaoMaxima + " pontos", larguraDispositivo / 2 - gameOver.getWidth() / 2, 100);
-
+            textoReiniciar.draw(batch, "Toque para reiniciar!", larguraDispositivo / 2 -300 , alturaDispositivo / 2 - gameOver.getHeight() / 2);
+            textoMelhorPontuacao.draw(batch, "Seu recorde é: " + pontuacaoMaxima + " pontos", larguraDispositivo / 2 -160, 100);
         }
 
 
@@ -304,6 +315,7 @@ public class SpaceEscape extends ApplicationAdapter {
                 if (colidiuAsteroide1 == true) {
                     Gdx.app.log("colisao", "COLIDIU ESSA MERDA!");
                     tempAsteroide.setVisible(false);
+                    somColisao.play();
                     estadoJogo = 2;
                     //tempAsteroide.stop();
                 }
