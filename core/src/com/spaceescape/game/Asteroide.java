@@ -23,8 +23,7 @@ public class Asteroide extends Thread {
     private SpriteBatch batch;
     private int x ;
     private int y ;
-    private int xValidado ;
-    private int yValidado ;
+
 
     private int velx, vely;
     private int identificador;
@@ -51,7 +50,7 @@ public class Asteroide extends Thread {
     }
 
 
-    public Asteroide(String nomeAsteroide) {
+    public Asteroide(String nomeAsteroide,int x,int y) {
         asteroide = new Texture(nomeAsteroide);
         batch = new SpriteBatch();
         this.x = x;
@@ -79,7 +78,7 @@ public class Asteroide extends Thread {
            if (vida == 0) {
                ativa = false;
            }
-            vida = vida - 10;
+            vida = vida - 4;
 
         }
     }

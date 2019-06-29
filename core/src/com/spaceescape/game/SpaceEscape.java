@@ -2,14 +2,18 @@ package com.spaceescape.game;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.utils.TimeUtils;
+
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -21,17 +25,17 @@ public class SpaceEscape extends ApplicationAdapter {
     private SpriteBatch batch;
     private Texture[] nave;
     private Texture fundo;
-    private float renderX = 100;
-    private float renderY = 100;
+    private Texture gameOver;
+    private Texture telaInicial;
+    private float renderX;
+    private float renderY;
 
     private ArrayList<Asteroide> asteroides = new ArrayList();
-    //public ArrayList<Asteroide> asteroides;
 
 
     //Formas para Colisão
     private ShapeRenderer shapeRenderer;
     private Circle circuloNave, circuloAsteroide;
-    private Rectangle retanguloCanoCima;
 
 
     //Atributos de Configurações
@@ -42,11 +46,22 @@ public class SpaceEscape extends ApplicationAdapter {
     private float tempoGeraAsteroide = 0;
     private float posicaoHorizontalNave;
     private float posicaoVerticalNave;
-    private long startTime;
+    private int pontuacao = 0;
+    private int pontuacaoMaxima;
+
+    //Objeto salvar Pontuação
+    Preferences preferencias;
+
 
     //Parâmetros
 
     private int velocidadeNave = 5;
+    private int estadoJogo = 0;
+
+    //Exibição de Textos
+    BitmapFont textoPontuacao;
+    BitmapFont textoReiniciar;
+    BitmapFont textoMelhorPontuacao;
 
 
     @Override
@@ -62,17 +77,17 @@ public class SpaceEscape extends ApplicationAdapter {
 
         //LIMPAR FRAMES ANTERIORES
         //Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-        //desenharTexturas();
+
         verificaEstadoJogo();
+        desenharTexturas();
         detectarColisoes();
-        geraAsteroides();
+
 
     }
 
     @Override
     public void dispose() {
         batch.dispose();
-        //img.dispose();
     }
 
     private void inicializaTexturas() {
@@ -81,18 +96,83 @@ public class SpaceEscape extends ApplicationAdapter {
         nave[0] = new Texture("nave1.png");
         nave[1] = new Texture("nave2.png");
         nave[2] = new Texture("nave3.png");
+
         fundo = new Texture("fundo.png");
 
+        gameOver = new Texture("game_over.png");
+
+        telaInicial = new Texture("tela_inicial.png");
     }
 
     private void verificaEstadoJogo() {
-        //int w = Gdx.graphics.getWidth();
-        //int h = Gdx.graphics.getHeight();
-        //Gdx.app.log("FPS", "" + Gdx.graphics.getFramesPerSecond());
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        desenharTexturas();
+         /*
+            0 - Jogo Inicial - Passaro parado
+            1 - Começa o jogo
+            2 - Colidiu - Perdeu!
+        */
+        boolean toqueTela = Gdx.input.justTouched();
+
+        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
+        if (estadoJogo == 0) {
+            /*Aplica evento de toque na tela*/
+            renderX = Gdx.graphics.getWidth() / 2 + nave[2].getWidth() / 2;
+            renderY = Gdx.graphics.getHeight() / 2 + nave[2].getHeight() / 2;
+
+
+            if (toqueTela == true) {
+                //Gdx.app.log("Toque","Toque na tela");
+                estadoJogo = 1;
+
+            }
+
+        } else if (estadoJogo == 1) {
+            // desenharTexturas();
+
+
+            renderX += Gdx.input.getAccelerometerY() * velocidadeNave;
+            renderY -= Gdx.input.getAccelerometerX() * velocidadeNave;
+            if (renderX < 0) {
+                renderX = 0;
+            }
+            if (renderX > Gdx.graphics.getWidth() - 200) {
+                renderX = Gdx.graphics.getWidth() - 200;
+            }
+            if (renderY < 0) {
+                renderY = 0;
+            }
+            if (renderY > Gdx.graphics.getHeight() - 200) {
+                renderY = Gdx.graphics.getHeight() - 200;
+            }
+
+            geraAsteroides();
+
+        } else if (estadoJogo == 2) {
+
+
+            if (pontuacao > pontuacaoMaxima) {
+                pontuacaoMaxima = pontuacao;
+                preferencias.putInteger("pontuacaoMaxima", pontuacaoMaxima);
+
+            }
+
+            //posicaoHorizontalPassaro -= Gdx.graphics.getDeltaTime()*500;
+
+            //Reiniciar Partida
+            if (toqueTela == true) {
+                estadoJogo = 0;
+                pontuacao = 0;
+
+                renderX = Gdx.graphics.getWidth() / 2 + nave[2].getWidth() / 2;
+                renderY = Gdx.graphics.getHeight() / 2 + nave[2].getHeight() / 2;
+
+                asteroides.clear();
+            }
+
+        }
+
+
     }
 
 
@@ -100,8 +180,6 @@ public class SpaceEscape extends ApplicationAdapter {
         batch = new SpriteBatch();
         random = new Random();
 
-        renderX = 100;
-        renderY = 100;
 
         nave[1].setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
@@ -115,36 +193,38 @@ public class SpaceEscape extends ApplicationAdapter {
         circuloNave = new Circle();
         circuloAsteroide = new Circle();
 
+        //Configuração dos textos
 
-        // controle de tempo
-        //startTime = TimeUtils.millis();
+        textoPontuacao = new BitmapFont();
+        textoPontuacao.setColor(Color.WHITE);
+        textoPontuacao.getData().setScale(8);
+
+        textoReiniciar = new BitmapFont();
+        textoReiniciar.setColor(Color.GREEN);
+        textoReiniciar.getData().setScale(5);
+
+
+        textoMelhorPontuacao = new BitmapFont();
+        textoMelhorPontuacao.setColor(Color.RED);
+        textoMelhorPontuacao.getData().setScale(2);
+
+        //Configura Preferências dos Objetos
+        preferencias = Gdx.app.getPreferences("SpaceEscape");
+        pontuacaoMaxima = preferencias.getInteger("pontuacaoMaxima");
 
 
     }
 
     private void desenharTexturas() {
 
-        renderX += Gdx.input.getAccelerometerY() * velocidadeNave;
-        renderY -= Gdx.input.getAccelerometerX() * velocidadeNave;
-
-        if (renderX < 0) renderX = 0;
-        if (renderX > Gdx.graphics.getWidth() - 200) renderX = Gdx.graphics.getWidth() - 200;
-        if (renderY < 0) renderY = 0;
-        if (renderY > Gdx.graphics.getHeight() - 200) renderY = Gdx.graphics.getHeight() - 200;
 
         batch.begin();
         batch.draw(fundo, 0, 0, larguraDispositivo, alturaDispositivo);
+
         batch.draw(nave[(int) variacao], renderX, renderY, 150, 150);
 
-//		for (int i = 0; i < asteroides.size(); i++) {
-//			if(asteroides.get(i).isVisible() == true) {
-//				batch.draw(asteroides.get(i).getAsteroide(), asteroides.get(i).getX(), asteroides.get(i).getY(), asteroides.get(i).getLargura(), asteroides.get(i).getAltura());
-//			}
-//		}
-
-
         for (int i = 0; i < asteroides.size(); i++) {
-            if(asteroides.get(i).getVida()== 0){
+            if (asteroides.get(i).getVida() == 0) {
                 asteroides.get(i).setVisible(false);
                 asteroides.get(i).setX(Gdx.graphics.getWidth());
                 asteroides.get(i).setY(Gdx.graphics.getHeight());
@@ -154,9 +234,29 @@ public class SpaceEscape extends ApplicationAdapter {
             }
         }
 
+        //Desenha Pontuação
+        if (estadoJogo == 0) {
+            batch.draw(telaInicial, 0, 0, larguraDispositivo, alturaDispositivo);
+            textoReiniciar.setColor(Color.RED);
+            textoReiniciar.draw(batch, "Toque para Iniciar!", larguraDispositivo / 2 - 200, alturaDispositivo / 2 - gameOver.getHeight() / 2);
+        }
+
+        if (estadoJogo == 1) {
+            textoPontuacao.draw(batch, String.valueOf(pontuacao), 100, alturaDispositivo - 150);
+        }
+        if (estadoJogo == 2) {
+            textoPontuacao.draw(batch, String.valueOf(pontuacao), larguraDispositivo / 2, alturaDispositivo - 150);
+            batch.draw(gameOver, larguraDispositivo / 2 - gameOver.getWidth() / 2, alturaDispositivo / 2 - gameOver.getHeight() / 2);
+            textoReiniciar.setColor(Color.GREEN);
+            textoReiniciar.draw(batch, "Toque para reiniciar!", larguraDispositivo / 2 - 200, alturaDispositivo / 2 - gameOver.getHeight() / 2);
+            textoMelhorPontuacao.draw(batch, "Seu record é: " + pontuacaoMaxima + " pontos", larguraDispositivo / 2 - gameOver.getWidth() / 2, 100);
+
+        }
+
+
         batch.end();
 
-        tempoGeraAsteroide += Gdx.graphics.getDeltaTime()*40;
+        tempoGeraAsteroide += Gdx.graphics.getDeltaTime() * 40;
         if (tempoGeraAsteroide * 2 > 99) {
             tempoGeraAsteroide = 0;
         }
@@ -170,22 +270,30 @@ public class SpaceEscape extends ApplicationAdapter {
 
     private void geraAsteroides() {
 
-        if (tempoGeraAsteroide >= 3 && tempoGeraAsteroide <= 3.5) {
-            adicionaAsteroide1();
-        } else if (tempoGeraAsteroide >= 2 && tempoGeraAsteroide <= 2.5){
-            adicionaAsteroide2();
+        if (tempoGeraAsteroide >= 3 && tempoGeraAsteroide <= 3.2) {
+            adicionaAsteroideDireita();
+            pontuacao++;
+        } else if (tempoGeraAsteroide >= 3.21 && tempoGeraAsteroide <= 3.5) {
+            adicionaAsteroideEsquerda();
+            pontuacao++;
+        } else if (tempoGeraAsteroide >= 2 && tempoGeraAsteroide <= 2.2) {
+            adicionaAsteroideCima();
+            pontuacao++;
+        } else if (tempoGeraAsteroide >= 2.21 && tempoGeraAsteroide <= 2.5) {
+            adicionaAsteroideBaixo();
+            pontuacao++;
         }
     }
 
 
     private void detectarColisoes() {
 
-        Circle formaAsteroide;
         //FORMAS PARA COLISAO
-
+        Circle formaAsteroide;
 
         //NAVE
         circuloNave.set(renderX + 150 / 2, renderY + 150 / 2, 150 / 2);
+
         //ASTEROIDES
         for (int j = 0; j < asteroides.size(); j++) {
             Asteroide tempAsteroide = asteroides.get(j);
@@ -196,11 +304,11 @@ public class SpaceEscape extends ApplicationAdapter {
                 if (colidiuAsteroide1 == true) {
                     Gdx.app.log("colisao", "COLIDIU ESSA MERDA!");
                     tempAsteroide.setVisible(false);
+                    estadoJogo = 2;
                     //tempAsteroide.stop();
                 }
             }
         }
-
 
 //        // DESENHANDO AS FORMAS GEOMETRICAS - para entender a colisao
 //        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -214,9 +322,7 @@ public class SpaceEscape extends ApplicationAdapter {
 //		}
 //        shapeRenderer.end();
 //
-
     }
-
 
     @Override
 
@@ -230,17 +336,28 @@ public class SpaceEscape extends ApplicationAdapter {
 
     }
 
-    public void adicionaAsteroide1() {
-        Asteroide addAsteroide = new Asteroide("asteroide1.png");
+    public void adicionaAsteroideEsquerda() {
+        Asteroide addAsteroide = new Asteroide("asteroide1.png", -100, random.nextInt(Gdx.graphics.getHeight()));
         addAsteroide.start();
         asteroides.add(addAsteroide);
     }
 
-    public void adicionaAsteroide2() {
-        Asteroide addAsteroide = new Asteroide("asteroide2.png");
+    public void adicionaAsteroideDireita() {
+        Asteroide addAsteroide = new Asteroide("asteroide2.png", Gdx.graphics.getWidth() + 100, random.nextInt(Gdx.graphics.getHeight()));
         addAsteroide.start();
         asteroides.add(addAsteroide);
     }
 
+    public void adicionaAsteroideCima() {
+        Asteroide addAsteroide = new Asteroide("asteroide2.png", random.nextInt(Gdx.graphics.getWidth()), Gdx.graphics.getHeight() + 100);
+        addAsteroide.start();
+        asteroides.add(addAsteroide);
+    }
+
+    public void adicionaAsteroideBaixo() {
+        Asteroide addAsteroide = new Asteroide("asteroide2.png", random.nextInt(Gdx.graphics.getWidth()), -100);
+        addAsteroide.start();
+        asteroides.add(addAsteroide);
+    }
 
 }
