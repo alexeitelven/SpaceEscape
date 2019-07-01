@@ -3,9 +3,9 @@ package com.spaceescape.game;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -13,14 +13,14 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Intersector;
-import com.badlogic.gdx.math.Rectangle;
-
 
 import java.util.ArrayList;
 import java.util.Random;
 
-
 public class SpaceEscape extends ApplicationAdapter {
+
+    // Alterar aqui antes de comitar
+    //# Versão 1.10
 
     // TEXTURAS
     private SpriteBatch batch;
@@ -33,11 +33,9 @@ public class SpaceEscape extends ApplicationAdapter {
 
     private ArrayList<Asteroide> asteroides = new ArrayList();
 
-
     //Formas para Colisão
     private ShapeRenderer shapeRenderer;
     private Circle circuloNave, circuloAsteroide;
-
 
     //Atributos de Configurações
     private float larguraDispositivo;
@@ -53,9 +51,7 @@ public class SpaceEscape extends ApplicationAdapter {
     //Objeto salvar Pontuação
     Preferences preferencias;
 
-
     //Parâmetros
-
     private int velocidadeNave = 5;
     private int estadoJogo = 0;
 
@@ -65,31 +61,26 @@ public class SpaceEscape extends ApplicationAdapter {
     BitmapFont textoMelhorPontuacao;
 
     //Configuração dos Sons
-
     Sound somColisao;
-    Sound somInicio;
-
-
+    Music musicaInicial;
+    Music musicaJogando;
+    Music musicaFinal;
 
     @Override
     public void create() {
         inicializaTexturas();
         inicializaOjetos();
-
-
     }
 
     @Override
     public void render() {
 
         //LIMPAR FRAMES ANTERIORES
-        //Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+        Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT | GL30.GL_DEPTH_BUFFER_BIT);
 
         verificaEstadoJogo();
         desenharTexturas();
         detectarColisoes();
-
-
     }
 
     @Override
@@ -105,42 +96,44 @@ public class SpaceEscape extends ApplicationAdapter {
         nave[2] = new Texture("nave3.png");
 
         fundo = new Texture("fundo.png");
-
         gameOver = new Texture("game_over.png");
-
         telaInicial = new Texture("tela_inicial.png");
     }
 
     private void verificaEstadoJogo() {
 
-         /*
-            0 - Jogo Inicial - Passaro parado
-            1 - Começa o jogo
-            2 - Colidiu - Perdeu!
-        */
+             /* # - Estado do jogo
+                0 - Jogo Inicial - Passaro parado
+                1 - Começa o jogo
+                2 - Colidiu - Perdeu!
+            */
         boolean toqueTela = Gdx.input.justTouched();
 
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
         if (estadoJogo == 0) {
-            /*Aplica evento de toque na tela*/
+            /*Aplica o evento de toque na tela*/
             renderX = Gdx.graphics.getWidth() / 2 + nave[2].getWidth() / 2;
             renderY = Gdx.graphics.getHeight() / 2 + nave[2].getHeight() / 2;
 
+            musicaInicial.play();
+            musicaInicial.setLooping(true);
 
             if (toqueTela == true) {
                 //Gdx.app.log("Toque","Toque na tela");
                 estadoJogo = 1;
-                somInicio.play();
-
+                musicaInicial.pause();
             }
 
         } else if (estadoJogo == 1) {
+            // Tocar musica de fundo
+            musicaJogando.play();
+            musicaJogando.setLooping(true);
+
             // desenharTexturas();
-
-
             renderX += Gdx.input.getAccelerometerY() * velocidadeNave;
             renderY -= Gdx.input.getAccelerometerX() * velocidadeNave;
+
             if (renderX < 0) {
                 renderX = 0;
             }
@@ -158,36 +151,32 @@ public class SpaceEscape extends ApplicationAdapter {
 
         } else if (estadoJogo == 2) {
 
+            if (estadoJogo == 2) {
+                musicaFinal.play();
+            }
 
             if (pontuacao > pontuacaoMaxima) {
                 pontuacaoMaxima = pontuacao;
                 preferencias.putInteger("pontuacaoMaxima", pontuacaoMaxima);
-
             }
-
-            //posicaoHorizontalPassaro -= Gdx.graphics.getDeltaTime()*500;
-
             //Reiniciar Partida
             if (toqueTela == true) {
-                estadoJogo = 0;
+                musicaFinal.pause();
+                estadoJogo = 1;
                 pontuacao = 0;
+                musicaJogando.play();
 
                 renderX = Gdx.graphics.getWidth() / 2 + nave[2].getWidth() / 2;
                 renderY = Gdx.graphics.getHeight() / 2 + nave[2].getHeight() / 2;
 
                 asteroides.clear();
             }
-
         }
-
-
     }
-
 
     private void inicializaOjetos() {
         batch = new SpriteBatch();
         random = new Random();
-
 
         nave[1].setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
@@ -202,7 +191,6 @@ public class SpaceEscape extends ApplicationAdapter {
         circuloAsteroide = new Circle();
 
         //Configuração dos textos
-
         textoPontuacao = new BitmapFont();
         textoPontuacao.setColor(Color.WHITE);
         textoPontuacao.getData().setScale(8);
@@ -210,7 +198,6 @@ public class SpaceEscape extends ApplicationAdapter {
         textoReiniciar = new BitmapFont();
         textoReiniciar.setColor(Color.GREEN);
         textoReiniciar.getData().setScale(5);
-
 
         textoMelhorPontuacao = new BitmapFont();
         textoMelhorPontuacao.setColor(Color.RED);
@@ -222,17 +209,16 @@ public class SpaceEscape extends ApplicationAdapter {
 
         //Configuração dos sons
         somColisao = Gdx.audio.newSound(Gdx.files.internal("explosao.wav"));
-        somInicio = Gdx.audio.newSound(Gdx.files.internal("som_inicial.wav"));
-
+        musicaInicial = Gdx.audio.newMusic(Gdx.files.internal("musicainicial.mp3"));
+        musicaJogando = Gdx.audio.newMusic(Gdx.files.internal("musicajogando.mp3"));
+        musicaFinal = Gdx.audio.newMusic(Gdx.files.internal("musicafinal.mp3"));
 
     }
 
     private void desenharTexturas() {
 
-
         batch.begin();
         batch.draw(fundo, 0, 0, larguraDispositivo, alturaDispositivo);
-
         batch.draw(nave[(int) variacao], renderX, renderY, 150, 150);
 
         for (int i = 0; i < asteroides.size(); i++) {
@@ -257,13 +243,12 @@ public class SpaceEscape extends ApplicationAdapter {
             textoPontuacao.draw(batch, String.valueOf(pontuacao), 100, alturaDispositivo - 150);
         }
         if (estadoJogo == 2) {
-            textoPontuacao.draw(batch, String.valueOf(pontuacao), larguraDispositivo / 2 -50, alturaDispositivo - 150);
+            textoPontuacao.draw(batch, String.valueOf(pontuacao), larguraDispositivo / 2 - 50, alturaDispositivo - 150);
             batch.draw(gameOver, larguraDispositivo / 2 - gameOver.getWidth() / 2, alturaDispositivo / 2 - gameOver.getHeight() / 2);
             textoReiniciar.setColor(Color.GREEN);
-            textoReiniciar.draw(batch, "Toque para reiniciar!", larguraDispositivo / 2 -300 , alturaDispositivo / 2 - gameOver.getHeight() / 2);
-            textoMelhorPontuacao.draw(batch, "Seu recorde é: " + pontuacaoMaxima + " pontos", larguraDispositivo / 2 -160, 100);
+            textoReiniciar.draw(batch, "Toque para reiniciar!", larguraDispositivo / 2 - 300, alturaDispositivo / 2 - gameOver.getHeight() / 2);
+            textoMelhorPontuacao.draw(batch, "Seu recorde é: " + pontuacaoMaxima + " pontos", larguraDispositivo / 2 - 160, 100);
         }
-
 
         batch.end();
 
@@ -271,7 +256,6 @@ public class SpaceEscape extends ApplicationAdapter {
         if (tempoGeraAsteroide * 2 > 99) {
             tempoGeraAsteroide = 0;
         }
-
 
         variacao += Gdx.graphics.getDeltaTime() * 10;
         if (variacao > 3) {
@@ -296,7 +280,6 @@ public class SpaceEscape extends ApplicationAdapter {
         }
     }
 
-
     private void detectarColisoes() {
 
         //FORMAS PARA COLISAO
@@ -315,24 +298,27 @@ public class SpaceEscape extends ApplicationAdapter {
                 if (colidiuAsteroide1 == true) {
                     Gdx.app.log("colisao", "COLIDIU ESSA MERDA!");
                     tempAsteroide.setVisible(false);
-                    somColisao.play();
+                    if (estadoJogo == 1 && colidiuAsteroide1 == true) {
+                        somColisao.play();
+                    }
+                    musicaJogando.pause();
                     estadoJogo = 2;
                     //tempAsteroide.stop();
                 }
             }
         }
 
-//        // DESENHANDO AS FORMAS GEOMETRICAS - para entender a colisao
-//        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-//        shapeRenderer.setColor(Color.RED);
-//        shapeRenderer.circle(renderX + 150/2,renderY +150/2,150/2);
+//      // DESENHANDO AS FORMAS GEOMETRICAS - para entender a colisao
+//      shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+//      shapeRenderer.setColor(Color.RED);
+//      shapeRenderer.circle(renderX + 150/2,renderY +150/2,150/2);
 //
 //		for (int i = 0; i < asteroides.size(); i++) {
 //			shapeRenderer.circle(asteroides.get(i).getX() + asteroides.get(i).getLargura()/2,
 //					asteroides.get(i).getY() + asteroides.get(i).getAltura()/2,
 //					asteroides.get(i).getAltura()/2);
 //		}
-//        shapeRenderer.end();
+//      shapeRenderer.end();
 //
     }
 
@@ -371,5 +357,4 @@ public class SpaceEscape extends ApplicationAdapter {
         addAsteroide.start();
         asteroides.add(addAsteroide);
     }
-
 }

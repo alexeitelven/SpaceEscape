@@ -1,6 +1,5 @@
 package com.spaceescape.game;
 
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -14,9 +13,6 @@ public class Asteroide extends Thread {
     private float larguraDispositivo;
     private float alturaDispositivo;
 
-
-
-
     //Variaveis
     Random gerador = new Random();
 
@@ -24,14 +20,12 @@ public class Asteroide extends Thread {
     private int x ;
     private int y ;
 
-
     private int velx, vely;
     private int identificador;
     private Texture asteroide;
     private boolean visivel;
     private int altura, largura;
     private int vida = 8000;
-
 
     public Asteroide() {
         asteroide = new Texture("asteroide1.png");
@@ -49,7 +43,6 @@ public class Asteroide extends Thread {
         validaPosicaoInicial(x,y);
     }
 
-
     public Asteroide(String nomeAsteroide,int x,int y) {
         asteroide = new Texture(nomeAsteroide);
         batch = new SpriteBatch();
@@ -65,7 +58,6 @@ public class Asteroide extends Thread {
         this.larguraDispositivo = Gdx.graphics.getWidth();
     }
 
-
     public void run() {
         Boolean ativa = true;
 
@@ -79,10 +71,8 @@ public class Asteroide extends Thread {
                ativa = false;
            }
             vida = vida - 4;
-
         }
     }
-
 
     public void mover() {
 
@@ -203,10 +193,6 @@ public class Asteroide extends Thread {
 
         if((x >= valorInicialX && x <= valorFinalX) || (y >= valorFinalY && y <= valorFinalY) ) {
 
-
         }
-
-
     }
-
 }
