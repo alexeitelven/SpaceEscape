@@ -20,7 +20,7 @@ import java.util.Random;
 public class SpaceEscape extends ApplicationAdapter {
 
     // Alterar aqui antes de comitar
-    //# Versão 1.10
+    //# Versão 1.11
 
     // TEXTURAS
     private SpriteBatch batch;
